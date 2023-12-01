@@ -1,35 +1,101 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "menuOP1.h"
+#include "Dados.h"
+#include "TabelaGeral.h"
 
-//! Função que cria e atualiza um arquivo contendo a quantidade de tabelas
-//! existentes e seus nomes.
+#define NOME_DA_TABELA_GERAL "tabela geral.data"
 
-#ifndef LISTA_TABELAS
-#define LISTA_TABELAS
-
-void CriaArqNomesTabelas(char *texto) {
-  FILE *ArqNomes;
-  ArqNomes = fopen("Arquivo com nomes das tabelas.txt", "a+");
-
-  // fprintf(ArqNomes, "%d\n", qtdTabExistentes);
-  fprintf(ArqNomes, "%s\n", texto);
-
-  fclose(ArqNomes);
-  printf("Arquivo Geral com todos os nomes da tabela foi "
-         "criado/atualizado com sucesso.\n");
-  /*O arquivo contendo a lista de nomes das tabelas existentes terá o seguinte formato:
-  Quantidade de tabelas existentes;
-  Nome da tabela 1;
-  Nome da tabela 2;
-  Nome da tabela 3;
-  e assim por diante.
-  */
-
-  /*Gostaria que funcionasse assim:
-  Sempre que fosse criada uma tabela nova, o dado referente à quantidades de tabelas existentes seria incrementado de 1 e o nome da tabela nova seria adicionado no final da lista*/
+Texto *tabelaGeral_recuperarDados(FILE *arquivo, int *n)
+{
+  int quantidadeDeTabelas;
+  fscanf(arquivo, "%d ", &quantidadeDeTabelas);
+  Texto *nomes = calloc(quantidadeDeTabelas, sizeof(Texto));
+  for (int i = 0; i < quantidadeDeTabelas; i++)
+  {
+    nomes[i] = texto_recuperar(arquivo);
+  }
+  *n = quantidadeDeTabelas;
+  return nomes;
 }
 
+void tabelaGeral_gravarDados(FILE *arquivo, int quantidadeDeTabelas, Texto nomesDasTabelas[])
+{
+  fprintf(arquivo, "%d\n", quantidadeDeTabelas);
+  for (int i = 0; i < quantidadeDeTabelas; i++)
+  {
+    texto_gravar(nomesDasTabelas[i], arquivo);
+  }
+}
 
-#endif
+void tabelaGeral_adicionarTabela(Texto nomeDaNovaTabela)
+{
+  FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
+  if (arquivo == NULL)
+  {
+    arquivo = fopen(NOME_DA_TABELA_GERAL, "w");
+    fprintf(arquivo, "1\n");
+    texto_gravar(nomeDaNovaTabela, arquivo);
+    fclose(arquivo);
+  }
+  else
+  {
+    int quantidadeDeTabelas;
+    Texto *nomesDasTabelas = tabelaGeral_recuperarDados(arquivo, &quantidadeDeTabelas);
+    fclose(arquivo);
+
+    nomesDasTabelas = realloc(nomesDasTabelas, (quantidadeDeTabelas + 1) * sizeof(Texto));
+    nomesDasTabelas[quantidadeDeTabelas] = nomeDaNovaTabela;
+
+    arquivo = fopen(NOME_DA_TABELA_GERAL, "w");
+    tabelaGeral_gravarDados(arquivo, quantidadeDeTabelas + 1, nomesDasTabelas);
+    for (int i = 0; i < quantidadeDeTabelas + 1; i++)
+    {
+      free(nomesDasTabelas[i].vetor);
+    }
+    fclose(arquivo);
+  }
+}
+
+/**
+ * @return 1 se o nome estiver presente e 0 em caso contrário.
+ */
+int tabelaGeral_contemTabela(Texto nome)
+{
+  int contem = 0;
+  FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
+  if (arquivo != NULL)
+  {
+    int quantidadeDeTabelas;
+    Texto *nomesDasTabelas = tabelaGeral_recuperarDados(arquivo, &quantidadeDeTabelas);
+    fclose(arquivo);
+
+    int contem = 0;
+    for (int i = 0; i < quantidadeDeTabelas; i++)
+    {
+      if (strcmp(nome.vetor, nomesDasTabelas[i].vetor) == 0)
+      {
+        contem = 1;
+      }
+      free(nomesDasTabelas[i].vetor);
+    }
+  }
+  return contem;
+}
+
+void tabelaGeral_limpar()
+{
+  FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
+  if (arquivo != NULL)
+  {
+    int quantidadeDeTabelas;
+    Texto *nomesDasTabelas = tabelaGeral_recuperarDados(arquivo, &quantidadeDeTabelas);
+    fclose(arquivo);
+
+    for (int i = 0; i < quantidadeDeTabelas; i++)
+    {
+      remove(nomesDasTabelas[i].vetor);
+    }
+    remove(NOME_DA_TABELA_GERAL);
+  }
+}
