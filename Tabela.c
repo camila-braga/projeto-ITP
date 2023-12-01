@@ -70,7 +70,7 @@ void tabela_liberar(Tabela tabela)
 {
     for (int i = 0; i < tabela.quantidadeDeColunas; i++)
     {
-        ColunaDaTabela aux;
+        ColunaDaTabela aux = tabela.colunas[i];
         for (int j = 0; j < tabela.quantidadeDeLinhas; j++)
         {
             free(aux.dados[j].vetor);
@@ -132,4 +132,44 @@ int coluna_buscarValor(ColunaDaTabela coluna, Texto valor)
         }
     }
     return -1;
+}
+
+int tabela_removeChave(Tabela tabela, Texto chave)
+{
+    int indice = -1;
+    for (int i = 0; i < tabela.quantidadeDeLinhas && indice == -1; i++)
+    {
+        if (strcmp(chave.vetor, tabela.colunas[0].dados[i].vetor) == 0)
+        {
+            indice = i;
+        }
+    }
+    if (indice == -1)
+    {
+        return 0;
+    }
+
+    FILE *arquivo = fopen(tabela.nome.vetor, "w");
+    texto_gravar(tabela.nome, arquivo);
+    fprintf(arquivo, "%d\n", tabela.quantidadeDeColunas);
+    fprintf(arquivo, "%d\n", tabela.quantidadeDeLinhas - 1);
+
+    for (int i = 0; i < tabela.quantidadeDeColunas; i++)
+    {
+        ColunaDaTabela aux;
+        aux = tabela.colunas[i];
+        fprintf(arquivo, "%c\n", aux.tipo);
+        texto_gravar(aux.nome, arquivo);
+        for (int j = 0; j < tabela.quantidadeDeLinhas; j++)
+        {
+            if (j != indice)
+            {
+                Texto linha = aux.dados[j];
+                texto_gravar(linha, arquivo);
+            }
+        }
+    }
+    fclose(arquivo);
+    tabela_liberar(tabela);
+    return 1;
 }

@@ -5,10 +5,12 @@
 #include <string.h>
 
 #include "Dados.h"
+#include "Tabela.h"
 
-int tabelaGeral_existe();
 int tabelaGeral_contemTabela(Texto nome);
-void tabelaGeral_adicionarTabela(Texto nome); // ok
+void tabelaGeral_adicionarTabela(Texto nome);
 void tabelaGeral_limpar();
+int tabelaGeral_apagar(Texto nomeDaTabela);
+void tabelaGeral_listar();
 
 #endif

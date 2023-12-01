@@ -27,6 +27,7 @@ Tabela tabela_recuperar(Texto nome);
 void tabela_liberar(Tabela tabela);
 void tabela_exibirCabecalho(Tabela tabela);
 void tabela_exibirDados(Tabela tabela);
+int tabela_removeChave(Tabela tabela, Texto chave);
 
 Tabela tabela_adicionarLinha(Tabela tabela, Texto dados []);
 

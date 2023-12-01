@@ -50,6 +50,10 @@ void tabelaGeral_adicionarTabela(Texto nomeDaNovaTabela)
     arquivo = fopen(NOME_DA_TABELA_GERAL, "w");
     tabelaGeral_gravarDados(arquivo, quantidadeDeTabelas + 1, nomesDasTabelas);
     fclose(arquivo);
+    for(int i=0;i<quantidadeDeTabelas;i++){
+      free(nomesDasTabelas[i].vetor);
+    }
+    free(nomesDasTabelas);
   }
 }
 
@@ -74,6 +78,7 @@ int tabelaGeral_contemTabela(Texto nome)
       }
       free(nomesDasTabelas[i].vetor);
     }
+    free(nomesDasTabelas);
   }
   return contem;
 }
@@ -92,5 +97,69 @@ void tabelaGeral_limpar()
       remove(nomesDasTabelas[i].vetor);
     }
     remove(NOME_DA_TABELA_GERAL);
+    for(int i=0;i<quantidadeDeTabelas;i++){
+      free(nomesDasTabelas[i].vetor);
+    }
+    free(nomesDasTabelas);
+  }
+}
+
+int tabelaGeral_apagar(Texto excluindo)
+{
+  FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
+  if (arquivo != NULL)
+  {
+    int quantidadeDeTabelas;
+    Texto *nomesDasTabelas = tabelaGeral_recuperarDados(arquivo, &quantidadeDeTabelas);
+    fclose(arquivo);
+
+    int indice = -1;
+    for (int i = 0; i < quantidadeDeTabelas; i++)
+    {
+      if (strcmp(excluindo.vetor, nomesDasTabelas[i].vetor) == 0)
+      {
+        indice = i;
+      }
+    }
+
+    if (indice != -1)
+    {
+      arquivo = fopen(NOME_DA_TABELA_GERAL, "w");
+      fprintf(arquivo, "%d\n", quantidadeDeTabelas - 1);
+      for (int i = 0; i < quantidadeDeTabelas; i++)
+      {
+        if (i != indice)
+          texto_gravar(nomesDasTabelas[i], arquivo);
+      }
+      fclose(arquivo);
+      remove(excluindo.vetor);
+      return 1;
+    }
+    for(int i=0;i<quantidadeDeTabelas;i++){
+      free(nomesDasTabelas[i].vetor);
+    }
+    free(nomesDasTabelas);
+  }
+  return 0;
+}
+
+void tabelaGeral_listar(){
+  FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
+  if (arquivo != NULL)
+  {
+    int quantidadeDeTabelas;
+    Texto *nomesDasTabelas = tabelaGeral_recuperarDados(arquivo, &quantidadeDeTabelas);
+    fclose(arquivo);
+
+    printf("-----  Tabelas  -----\n");
+    for(int i=0;i<quantidadeDeTabelas;i++){
+      printf("%s\n", nomesDasTabelas[i].vetor);
+    }
+    printf("---------------------\n\n");
+    
+    for(int i=0;i<quantidadeDeTabelas;i++){
+      free(nomesDasTabelas[i].vetor);
+    }
+    free(nomesDasTabelas);
   }
 }

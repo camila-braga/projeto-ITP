@@ -10,6 +10,7 @@
 
 #include "Dados.h"
 #include "Tabela.h"
+#include "Pesquisa.h"
 #include "TabelaGeral.h"
 
 typedef enum
@@ -30,7 +31,7 @@ typedef enum
  */
 void menu()
 {
-  printf("-------------------------------------------------------\n");
+  printf("\n\n-------------------------------------------------------\n");
   printf("          Menu Principal. Opcoes disponiveis:\n");
   printf("-------------------------------------------------------\n");
   printf("%d - Criar tabela;\n", CRIAR_TABELA);
@@ -84,19 +85,19 @@ void criarTabela()
   tiposDasColunas[0] = 'i';
   int erro = 0;
 
-  
-
   for (int i = 1; i < quantidadeColunas && !erro; i++)
   {
     printf("\tDigite o nome da coluna %d: ", i + 1);
     nomeDasColunas[i] = texto_lerTerminalEmLoop(256);
 
-    int iguais = verificarNomesIguais(i+1, nomeDasColunas);
+    int iguais = verificarNomesIguais(i + 1, nomeDasColunas);
     if (iguais)
     {
       erro = 1;
       printf("\t\tNao e possivel realizar essa acao: duas colunas com o nome \"%s\".\n", nomeDasColunas[iguais].vetor);
-    } else {
+    }
+    else
+    {
       tiposDasColunas[i] = texto_lerTipoEmLoop();
     }
   }
@@ -104,7 +105,7 @@ void criarTabela()
   if (!erro)
   {
     Tabela tabela = tabela_criar(nome, quantidadeColunas, nomeDasColunas, tiposDasColunas);
-    
+
     tabela_gravar(tabela);
     tabelaGeral_adicionarTabela(nome);
 
@@ -150,7 +151,7 @@ Texto leituraDaChavePrimaria(ColunaDaTabela coluna)
 Texto * leituraDeDados(int n, ColunaDaTabela colunas[])
 {
   printf("\tDigite o valor da chave primaria: ");
-  Texto * linhaASerInserida = calloc(n, sizeof(Texto));
+  Texto *linhaASerInserida = calloc(n, sizeof(Texto));
   linhaASerInserida[0] = leituraDaChavePrimaria(colunas[0]);
   for (int i = 1; i < n; i++)
   {
@@ -161,7 +162,7 @@ Texto * leituraDeDados(int n, ColunaDaTabela colunas[])
     fflush(stdin);
     if (inserir == 's')
     {
-      printf("\tDigite o valor do tipo de dado %c para a coluna %s: ", aux.tipo, aux.nome);
+      printf("\tDigite o valor do tipo de dado %c para a coluna %s: ", aux.tipo, aux.nome.vetor);
       linhaASerInserida[i] = texto_lerValorComTipo(aux.tipo);
     }
     else
@@ -196,7 +197,7 @@ void adicionarDados()
   if (tabelaGeral_contemTabela(nome))
   {
     Tabela tabela = tabela_recuperar(nome);
-    Texto * linhaASerInserida = leituraDeDados(tabela.quantidadeDeColunas, tabela.colunas);
+    Texto *linhaASerInserida = leituraDeDados(tabela.quantidadeDeColunas, tabela.colunas);
     int erro = verificarExistenciaDaChave(tabela, linhaASerInserida);
     if (!erro)
     {
@@ -213,10 +214,89 @@ void adicionarDados()
       }
     }
     free(linhaASerInserida);
-  } else {
+  }
+  else
+  {
     printf("\t\tNao e possivel realizar essa acao: nao existe uma tabela de nome \"%s\".\n", nome.vetor);
   }
   free(nome.vetor);
+}
+
+void apagarTabela()
+{
+  printf("Digite o nome da tabela a ser apagada: ");
+  Texto nome = texto_lerTerminalEmLoop(256);
+  if (tabelaGeral_apagar(nome))
+  {
+    printf("\t>>Tabela \"%s\" apagada com sucesso.\n\n", nome.vetor);
+  }
+  else
+  {
+    printf("\t\tNao e possivel realizar essa acao: nao existe uma tabela de nome \"%s\".\n", nome.vetor);
+  }
+  free(nome.vetor);
+}
+
+void apagarTupla()
+{
+  printf("Digite o nome da tabela em que se encontra a tupla: ");
+  Texto nome = texto_lerTerminalEmLoop(256);
+  if (tabelaGeral_contemTabela(nome))
+  {
+    Tabela tabela = tabela_recuperar(nome);
+    printf("Digite a chave a ser removida: ");
+    Texto chave = leituraDaChavePrimaria(tabela.colunas[0]);
+    if (tabela_removeChave(tabela, chave))
+    {
+      printf("\t>>Tupla de chave \"%s\" apagada com sucesso.\n\n", chave.vetor);
+    }
+    else
+    {
+      printf("\t\tNao e possivel realizar essa acao: nao existe uma tupla com a chave \"%s\".\n", chave.vetor);
+    }
+  }
+  else
+  {
+    printf("\t\tNao e possivel realizar essa acao: nao existe uma tabela de nome \"%s\".\n", nome.vetor);
+    free(nome.vetor);
+  }
+}
+
+void pesquisarValores()
+{
+  printf("Digite o nome da tabela a ser pesquisada: ");
+  Texto nome = texto_lerTerminalEmLoop(256);
+  if (tabelaGeral_contemTabela(nome))
+  {
+    Tabela tabela = tabela_recuperar(nome);
+    tabela_exibirCabecalho(tabela);
+
+    printf("Qual a coluna a ser pesquisada: ");
+    Texto coluna = texto_lerTerminalEmLoop(256);
+    int indice = -1;
+    for (int i = 0; i < tabela.quantidadeDeColunas && indice == -1; i++)
+    {
+      if (strcmp(coluna.vetor, tabela.colunas[i].nome.vetor) == 0)
+      {
+        indice = i;
+      }
+    }
+
+    if (indice != -1)
+    {
+      pesquisar(tabela, indice);
+      tabela_liberar(tabela);
+    }
+    else
+    {
+      printf("\t\tNao e possivel realizar essa acao: nao existe uma coluna com o nome \"%s\".\n", coluna.vetor);
+    }
+  }
+  else
+  {
+    printf("\t\tNao e possivel realizar essa acao: nao existe uma tabela de nome \"%s\".\n", nome.vetor);
+    free(nome.vetor);
+  }
 }
 
 /**
@@ -241,7 +321,7 @@ int main(void)
       criarTabela();
       break;
     case LISTAR_TABELA:
-      // ListaTabelas();
+      tabelaGeral_listar();
       break;
     case CRIAR_LINHA:
       adicionarDados();
@@ -250,11 +330,13 @@ int main(void)
       exibirDados();
       break;
     case PESQUISAR_VALOR:
+      pesquisarValores();
       break;
     case APAGAR_TUPLA:
+      apagarTupla();
       break;
     case APAGAR_TABELA:
-      // ApagaTabela();
+      apagarTabela();
       break;
     case SAIR:
       break;
