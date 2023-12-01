@@ -22,7 +22,7 @@ typedef enum
   APAGAR_TUPLA = 6,
   APAGAR_TABELA = 7,
   SAIR = 8,
-  LIMPAR = 9
+  LIMPAR = 0
 } Opcoes;
 
 /**
@@ -46,6 +46,23 @@ void menu()
   printf("Digite a opcao desejada: ");
 }
 
+int verificarNomesIguais(int n, Texto linhaASerInserida[])
+{
+  for (int i = 0; i < n; i++)
+  {
+    for (int j = i + 1; j < n; j++)
+    {
+      Texto a = linhaASerInserida[i];
+      Texto b = linhaASerInserida[j];
+      if (strcmp(a.vetor, b.vetor) == 0)
+      {
+        return j;
+      }
+    }
+  }
+  return 0;
+}
+
 void criarTabela()
 {
   printf("Digite o nome da tabela: ");
@@ -65,22 +82,38 @@ void criarTabela()
   char tiposDasColunas[quantidadeColunas];
   nomeDasColunas[0] = texto_lerTerminalEmLoop(256);
   tiposDasColunas[0] = 'i';
-  for (int i = 1; i < quantidadeColunas; i++)
+  int erro = 0;
+
+  
+
+  for (int i = 1; i < quantidadeColunas && !erro; i++)
   {
     printf("\tDigite o nome da coluna %d: ", i + 1);
     nomeDasColunas[i] = texto_lerTerminalEmLoop(256);
-    tiposDasColunas[i] = texto_lerTipoEmLoop();
+
+    int iguais = verificarNomesIguais(i+1, nomeDasColunas);
+    if (iguais)
+    {
+      erro = 1;
+      printf("\t\tNao e possivel realizar essa acao: duas colunas com o nome \"%s\".\n", nomeDasColunas[iguais].vetor);
+    } else {
+      tiposDasColunas[i] = texto_lerTipoEmLoop();
+    }
   }
 
-  Tabela tabela = tabela_criar(nome, quantidadeColunas, nomeDasColunas, tiposDasColunas);
-  tabela_gravar(tabela);
-  tabelaGeral_adicionarTabela(nome);
+  if (!erro)
+  {
+    Tabela tabela = tabela_criar(nome, quantidadeColunas, nomeDasColunas, tiposDasColunas);
+    
+    tabela_gravar(tabela);
+    tabelaGeral_adicionarTabela(nome);
 
-  printf("\n\n");
-  tabela_exibirCabecalho(tabela);
-  printf(">>Tabela criada com sucesso.\n");
+    printf("\n\n");
+    tabela_exibirCabecalho(tabela);
+    printf(">>Tabela criada com sucesso.\n\n");
 
-  tabela_liberar(tabela);
+    tabela_liberar(tabela);
+  }
 }
 
 void exibirDados()
@@ -102,7 +135,8 @@ void exibirDados()
   }
 }
 
-Texto leituraDaChavePrimaria(ColunaDaTabela coluna){
+Texto leituraDaChavePrimaria(ColunaDaTabela coluna)
+{
   int valor = texto_lerValorPositivoEmLoop();
   Texto texto;
   texto.capacidade = 32;
@@ -113,9 +147,10 @@ Texto leituraDaChavePrimaria(ColunaDaTabela coluna){
   return texto;
 }
 
-void leituraDeDados(int n, ColunaDaTabela colunas[], Texto linhaASerInserida[])
+Texto * leituraDeDados(int n, ColunaDaTabela colunas[])
 {
   printf("\tDigite o valor da chave primaria: ");
+  Texto * linhaASerInserida = calloc(n, sizeof(Texto));
   linhaASerInserida[0] = leituraDaChavePrimaria(colunas[0]);
   for (int i = 1; i < n; i++)
   {
@@ -123,7 +158,7 @@ void leituraDeDados(int n, ColunaDaTabela colunas[], Texto linhaASerInserida[])
     printf("\tDeseja inserir um valor para coluna %s (s, n)?: ", aux.nome.vetor);
     char inserir;
     scanf("%c", &inserir);
-    getchar(); // limpar buffer
+    fflush(stdin);
     if (inserir == 's')
     {
       printf("\tDigite o valor do tipo de dado %c para a coluna %s: ", aux.tipo, aux.nome);
@@ -134,11 +169,24 @@ void leituraDeDados(int n, ColunaDaTabela colunas[], Texto linhaASerInserida[])
       Texto texto;
       texto.capacidade = 5;
       texto.tamanho = 4;
-      texto.vetor = calloc(4, sizeof(char));
+      texto.vetor = calloc(5, sizeof(char));
       sprintf(texto.vetor, "NULL");
       linhaASerInserida[i] = texto;
     }
   }
+  return linhaASerInserida;
+}
+
+int verificarExistenciaDaChave(Tabela tabela, Texto linhaASerInserida[])
+{
+  int erro = 0;
+  int posicao = coluna_buscarValor(tabela.colunas[0], linhaASerInserida[0]);
+  if (posicao != -1) // valor ausente
+  {
+    erro = 1;
+    printf("\t\tNao e possivel realizar essa acao: ja existe uma linha com a chave \"%s\".\n", linhaASerInserida[0].vetor);
+  }
+  return erro;
 }
 
 void adicionarDados()
@@ -148,29 +196,27 @@ void adicionarDados()
   if (tabelaGeral_contemTabela(nome))
   {
     Tabela tabela = tabela_recuperar(nome);
-    Texto linhaASerInserida[tabela.quantidadeDeColunas];
-    leituraDeDados(tabela.quantidadeDeColunas, tabela.colunas, linhaASerInserida);
-    int posicao = coluna_buscarValor(tabela.colunas[0], linhaASerInserida[0]);
-    if (posicao == -1) // valor ausente
+    Texto * linhaASerInserida = leituraDeDados(tabela.quantidadeDeColunas, tabela.colunas);
+    int erro = verificarExistenciaDaChave(tabela, linhaASerInserida);
+    if (!erro)
     {
-      tabela_adicionarLinha(tabela, linhaASerInserida);
+      tabela = tabela_adicionarLinha(tabela, linhaASerInserida);
       tabela_gravar(tabela);
+      tabela_liberar(tabela); // libera nome também
+      printf("\t>>Dados inseridos com sucesso.\n\n");
     }
     else
     {
-      printf("\t\tNao e possivel realizar essa acao: ja existe uma linha com a chave \"%s\".\n", linhaASerInserida[0].vetor);
       for (int i = 0; i < tabela.quantidadeDeColunas; i++)
       {
         free(linhaASerInserida[i].vetor);
       }
     }
-    tabela_liberar(tabela); // libera nome também
-  }
-  else
-  {
+    free(linhaASerInserida);
+  } else {
     printf("\t\tNao e possivel realizar essa acao: nao existe uma tabela de nome \"%s\".\n", nome.vetor);
-    free(nome.vetor);
   }
+  free(nome.vetor);
 }
 
 /**
@@ -186,7 +232,7 @@ int main(void)
   {
     menu(); // imprime as opções de escolha para o usuário.
     scanf("%d", &opcao);
-    getchar(); // limpar buffer
+    fflush(stdin);
 
     //! Instruções de acordo com a escolha do usuário.
     switch (opcao)
@@ -198,7 +244,7 @@ int main(void)
       // ListaTabelas();
       break;
     case CRIAR_LINHA:
-      // CriarNovaLinha();
+      adicionarDados();
       break;
     case LISTAR_DADOS:
       exibirDados();

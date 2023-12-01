@@ -46,13 +46,16 @@ Tabela tabela_recuperar(Texto nome)
     Tabela tabela;
     FILE *arquivo = fopen(nome.vetor, "r");
     tabela.nome = texto_recuperar(arquivo);
-    fscanf(arquivo, "%d\n", &tabela.quantidadeDeColunas);
-    fscanf(arquivo, "%d\n", &tabela.quantidadeDeLinhas);
+    fscanf(arquivo, "%d", &tabela.quantidadeDeColunas);
+    fscanf(arquivo, "%d", &tabela.quantidadeDeLinhas);
+    tabela.colunas = calloc(tabela.quantidadeDeColunas, sizeof(ColunaDaTabela));
     for (int i = 0; i < tabela.quantidadeDeColunas; i++)
     {
         ColunaDaTabela aux;
-        fscanf(arquivo, "%c\n", &aux.tipo);
+        fscanf(arquivo, " %c", &aux.tipo);
         aux.nome = texto_recuperar(arquivo);
+        aux.dados = calloc(tabela.quantidadeDeLinhas, sizeof(Texto));
+        aux.quantidadeDeLinhas = tabela.quantidadeDeLinhas;
         for (int j = 0; j < tabela.quantidadeDeLinhas; j++)
         {
             aux.dados[j] = texto_recuperar(arquivo);
@@ -82,12 +85,12 @@ void tabela_liberar(Tabela tabela)
 void tabela_exibirCabecalho(Tabela tabela)
 {
     printf("----------------------------------------------------------------------\n");
-    printf("--\tTabela: %s (%d x %d)\n", tabela.nome.vetor, tabela.quantidadeDeLinhas, tabela.quantidadeDeColunas);
+    printf("| \tTabela: %s (%d x %d)\n", tabela.nome.vetor, tabela.quantidadeDeLinhas, tabela.quantidadeDeColunas);
     printf("----------------------------------------------------------------------\n");
     printf("|");
     for (int i = 0; i < tabela.quantidadeDeColunas; i++)
     {
-        printf(" %20s (%c) |", tabela.colunas[i].nome.vetor, tabela.colunas[i].tipo);
+        printf(" %10s (%c) |", tabela.colunas[i].nome.vetor, tabela.colunas[i].tipo);
     }
     printf("\n----------------------------------------------------------------------\n");
 }
@@ -99,21 +102,23 @@ void tabela_exibirDados(Tabela tabela)
         printf("|");
         for (int i = 0; i < tabela.quantidadeDeColunas; i++)
         {
-            printf(" %23s (%c) |", tabela.colunas[i].dados[linha]);
+            printf(" %14s |", tabela.colunas[i].dados[linha].vetor);
         }
         printf("\n");
     }
-    printf("\n----------------------------------------------------------------------\n");
+    printf("----------------------------------------------------------------------\n");
 }
 
-void tabela_adicionarLinha(Tabela tabela, Texto dados[])
+Tabela tabela_adicionarLinha(Tabela tabela, Texto dados[])
 {
     tabela.quantidadeDeLinhas += 1;
     for (int i = 0; i < tabela.quantidadeDeColunas; i++)
     {
+        tabela.colunas[i].quantidadeDeLinhas = tabela.quantidadeDeLinhas;
         tabela.colunas[i].dados = realloc(tabela.colunas[i].dados, tabela.quantidadeDeLinhas * sizeof(Texto));
         tabela.colunas[i].dados[tabela.quantidadeDeLinhas - 1] = dados[i];
     }
+    return tabela;
 }
 
 // retorna -1 se o valor não estiver presente, caso contrário, retorna a posição do valor na coluna

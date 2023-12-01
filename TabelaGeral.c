@@ -49,10 +49,6 @@ void tabelaGeral_adicionarTabela(Texto nomeDaNovaTabela)
 
     arquivo = fopen(NOME_DA_TABELA_GERAL, "w");
     tabelaGeral_gravarDados(arquivo, quantidadeDeTabelas + 1, nomesDasTabelas);
-    for (int i = 0; i < quantidadeDeTabelas + 1; i++)
-    {
-      free(nomesDasTabelas[i].vetor);
-    }
     fclose(arquivo);
   }
 }
@@ -70,7 +66,6 @@ int tabelaGeral_contemTabela(Texto nome)
     Texto *nomesDasTabelas = tabelaGeral_recuperarDados(arquivo, &quantidadeDeTabelas);
     fclose(arquivo);
 
-    int contem = 0;
     for (int i = 0; i < quantidadeDeTabelas; i++)
     {
       if (strcmp(nome.vetor, nomesDasTabelas[i].vetor) == 0)

@@ -83,7 +83,7 @@ Texto texto_recuperar(FILE *arquivo)
     lido.capacidade = lido.tamanho + 1;
     lido.vetor = calloc(lido.capacidade, sizeof(char));
     fgets(lido.vetor, lido.capacidade, arquivo);
-    getchar(); // leitura do \n
+    fflush(stdin);
     return lido;
 }
 
@@ -123,7 +123,7 @@ int texto_lerValorPositivoEmLoop()
         printf("\t\tPor favor, tente outra vez: ");
         scanf("%d", &valor);
     }
-    getchar(); // limpar buffer
+    fflush(stdin);
     return valor;
 }
 
@@ -138,7 +138,7 @@ char texto_lerTipoEmLoop()
         printf("\t\tPor favor, tente outra vez: ");
         scanf(" %c", &tipo);
     }
-    getchar(); // limpar buffer
+    fflush(stdin);
     return tipo;
 }
 
@@ -158,7 +158,7 @@ Texto texto_lerValorDoTipoString()
     } while (c != '\0' && c != '\n');
     texto.vetor[texto.capacidade - 1] = '\0';
     texto.tamanho = texto.capacidade - 1;
-    getchar(); // limpar buffer
+    fflush(stdin);
     return texto;
 }
 
@@ -197,7 +197,7 @@ Texto texto_lerValorComTipo(char tipo)
             break;
         }
     }
-    getchar(); // limpar buffer
+    fflush(stdin);
     texto.tamanho = strlen(texto.vetor);
     return texto;
 }
