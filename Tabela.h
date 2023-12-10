@@ -22,7 +22,7 @@ typedef struct { /** Nome da coluna */
 /**
  * Representa uma tabela.
  * 
- * Representa uma tabela de dados do sistema. Uma tabela possui um nome, que é representado pela estrutura de Texto, um vetor para armazenar os dados de cada uma das colunas e uma variável para indicar a quantidade de colunas presentes na tabela. Os detalhes de cada coluna serão armazenados pela estrutura ColunaDaTabela. Além disso, possui um campo para indicar a quantidade linhas das tabelas, ou seja, a quantdade de dados em cada coluna.
+ * Representa uma tabela de dados do sistema. Uma tabela possui um nome, que é representado pela estrutura de Texto, um vetor para armazenar os dados de cada uma das colunas e uma variável para indicar a quantidade de colunas presentes na tabela. Os detalhes de cada coluna serão armazenados pela estrutura ColunaDaTabela. Além disso, possui um campo para indicar a quantidade linhas das tabelas, ou seja, a quantidade de dados em cada coluna.
  */
 typedef struct { /** Nome da tabela*/
     Texto nome; /**Quantidade de colunas da tabela*/

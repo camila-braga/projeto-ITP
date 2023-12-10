@@ -18,9 +18,9 @@ O SGBD ITP deverá ser capaz de realizar as seguintes operações:
 
 O SGBD ITP implementado cria um arquivo para cada tabela, além de criar um arquivo extra contendo a quantidade de tabelas e seus nomes para auxiliar, quando necessário, na implementação das funções.
 
-O arquivo que contém a quantidade de tabelas e seus nomes se chama Tabela Geral.data e está organizado da seguinte forma: quantidade de tabelas, nomes das tabelas.
+O arquivo que contém a quantidade de tabelas e seus nomes se chama Tabela Geral.data e está organizado da seguinte forma: o primeiro dado corresponde à quantidade de tabelas existentes; o segundo dado corresponde ao tamanho da string seguido pelo nome de uma tabela separados por espaço; os próximos dados são equivalentes ao segundo.
 
-Cada arquivo das tabelas está organizado da seguinte forma: nome da tabela, quantidade de colunas, quantidade de linhas, tipo de dado e nome da coluna intercalados, dados das colunas.
+Cada arquivo das tabelas está organizado da seguinte forma: Tamanho da string do nome da tabela seguido pelo seu nome e separados por espaço; quantidade de colunas; quantidade de linhas; tipo de dado da coluna; tamanho da string do nome da coluna e seu nome, separados por espaço; tamanho da string do dado e o dado em si, separados por espaço; e repete esse formato - tipo, tam nome, tam dado - para as outras colunas.
 
 O código fonte foi dividido em 4 módulos além do principal, chamados: Dados.h, Pesquisa.h, Tabela.h, TabelaGeral.h e principal.c. 
 No módulo Dados, estão organizadas as funções responsáveis pelas leituras de dados e gravações das informações obtidas nos arquivos.

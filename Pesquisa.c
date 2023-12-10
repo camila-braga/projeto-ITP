@@ -46,7 +46,9 @@ int compararValores(Texto primeiro, Texto segundo, char tipo)
         double adouble, bdouble;
         sscanf(primeiro.vetor, "%lf", &adouble);
         sscanf(segundo.vetor, "%lf", &bdouble);
-        return adouble - bdouble;
+        double diferenca = adouble - bdouble;
+        if(diferenca < 0) return -1;
+        if(diferenca > 0) return 1;
     }
     }
     return 0;
