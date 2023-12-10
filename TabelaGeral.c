@@ -6,6 +6,13 @@
 
 #define NOME_DA_TABELA_GERAL "tabela geral.data"
 
+/**
+ * Faz a leitura dos dados de um arquivo aberto em modo de leitura, atribuindo os dados lidos em uma estrutura de strings. Os dados do arquivo estão organizados na seguinte sequência: o primeiro dado corresponde à quantidade de tabelas existentes, enquanto que os dados restantes correspondem aos nomes das tabelas, representados pela estrutura Texto.
+ * 
+ * @param arquivo Arquivo a ser lido.
+ * @param n Ponteiro para quantidade de tabelas.
+ * @return Uma estrutura de Texto contendo os dados lidos, além de passar por referência o dado correspondente à quantidade de tabelas.
+ */
 Texto *tabelaGeral_recuperarDados(FILE *arquivo, int *n)
 {
   int quantidadeDeTabelas;
@@ -19,6 +26,13 @@ Texto *tabelaGeral_recuperarDados(FILE *arquivo, int *n)
   return nomes;
 }
 
+/**
+ * Grava no arquivo os dados atualizados sobre a quantidade de tabelas e seus nomes.
+ *
+ * @param arquivo Arquivo a ter dados gravados. Deve estar aberto no modo de escrita.
+ * @param quantidadeDeTabelas Quantidade atualizada.
+ * @param nomesDasTabelas Texto com os dados atualizados.
+ */
 void tabelaGeral_gravarDados(FILE *arquivo, int quantidadeDeTabelas, Texto nomesDasTabelas[])
 {
   fprintf(arquivo, "%d\n", quantidadeDeTabelas);
@@ -28,6 +42,13 @@ void tabelaGeral_gravarDados(FILE *arquivo, int quantidadeDeTabelas, Texto nomes
   }
 }
 
+/**
+ * Cria ou atualiza um arquivo contendo a quantidade de tabelas e seus respectivos nomes, sempre que uma nova tabela é criada.
+ * 
+ * Caso o arquivo não exista, um novo é criado. Caso contrário, seus dados são atualizados.
+ *
+ * @param nomeDaNovaTabela Estrutura com o nome da nova tabela criada previamente.
+ */
 void tabelaGeral_adicionarTabela(Texto nomeDaNovaTabela)
 {
   FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
@@ -58,7 +79,12 @@ void tabelaGeral_adicionarTabela(Texto nomeDaNovaTabela)
 }
 
 /**
- * @return 1 se o nome estiver presente e 0 em caso contrário.
+ * Recebe uma estrutura de texto que corresponde a um nome e verifica se esse nome já existe dentro de um arquivo.
+ * 
+ * Abre um arquivo em modo leitura, realiza a leitura de seus dados e compara se o dado recebido é igual a algum dado lido. Retorna 1 em caso de sucesso e 0, caso contrário.
+ * 
+ * @param nome Estrutura de Texto.
+ * @return 1 se o nome já existir e 0, caso contrário.
  */
 int tabelaGeral_contemTabela(Texto nome)
 {
@@ -83,6 +109,9 @@ int tabelaGeral_contemTabela(Texto nome)
   return contem;
 }
 
+/**
+ * Apaga do disco rígido todos os arquivos salvos.
+ */
 void tabelaGeral_limpar()
 {
   FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
@@ -104,6 +133,13 @@ void tabelaGeral_limpar()
   }
 }
 
+/**
+ * Apaga do disco rígido uma tabela específica e atualiza o arquivo que lista os nomes das tabelas existentes.
+ * 
+ * Recebe como argumento uma estrutura contendo o nome da tabela a ser apagada e atualiza os dados do arquivo que contém os nomes de todas as tabelas existentes, excluindo-se o nome da tabela que foi apagada. 
+ * @param excluindo Estrutura contendo os dados a serem deletados.
+ * @return 1 se a tabela existir e a remoção for realizada e 0, caso a tabela não exista.
+ */
 int tabelaGeral_apagar(Texto excluindo)
 {
   FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
@@ -143,6 +179,11 @@ int tabelaGeral_apagar(Texto excluindo)
   return 0;
 }
 
+/**
+ * Lista os nomes das tabelas existentes.
+ * 
+ * Faz a leitura dos dados do arquivo 'tabela geral.data' e exibe na tela os dados correspondentes aos nomes das tabelas.
+ */
 void tabelaGeral_listar(){
   FILE *arquivo = fopen(NOME_DA_TABELA_GERAL, "r");
   if (arquivo != NULL)

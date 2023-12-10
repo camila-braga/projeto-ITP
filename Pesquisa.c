@@ -3,20 +3,28 @@
 #include "Tabela.h"
 #include "Pesquisa.h"
 
+/**
+ * Representa as opções de escolha do usuário referente à pesquisa de valores. 
+ */
 typedef enum
-{
-    MAIOR = 1,
-    MAIOR_OU_IGUAL = 2,
-    IGUAL = 3,
-    MENOR_OU_IGUAL = 4,
-    MENOR = 5,
-    PROXIMO = 6
+{               /**Para valores maiores do que o solicitado;*/
+    MAIOR = 1, /**Para valores maiores ou iguais ao solicitado;*/
+    MAIOR_OU_IGUAL = 2,  /**Para valores iguais ao solicitado;*/
+    IGUAL = 3, /**Para valores menores ou iguais ao solicitado;*/
+    MENOR_OU_IGUAL = 4, /**Para valores menores do que o solicitado;*/
+    MENOR = 5, /**Para valores próximos ao solicitado. Apenas para valores do tipo string.*/
+    PROXIMO = 6 
 } Regra;
 
-// retorna
-// -1 se o primeiro valor for menor que o segundo
-// 0 se os valores são iguais
-// 1 se o primeiro é maior que o segundo valor
+/**
+ *  Compara valores de duas estruturas, convertendo-os nos tipos 'c', 'i', 'f', 'd', 's', retornando um valor negativo se o primeiro valor for menor do que o segundo, 0 se os valores forem iguais ou um valor positivo se o primeiro valor for maior do que o segundo.
+ * 
+ * Observação: Para o caso em que o tipo de dado for 'f', a implementação será idêntica ao caso em que o tipo de dado for 'd'. 
+ * @param primeiro Estrutura contendo os dados do primeiro valor
+ * @param segundo Estrutura contendo os dados do segundo valor
+ * @param tipo Tipo de dado referente aos valores a serem comparados
+ * @return um valor negativo se o primeiro valor for menor do que o segundo, 0 se os valores forem iguais ou um valor positivo se o primeiro valor for maior do que o segundo.
+ */
 int compararValores(Texto primeiro, Texto segundo, char tipo)
 {
     switch (tipo)
@@ -35,7 +43,6 @@ int compararValores(Texto primeiro, Texto segundo, char tipo)
     case 'f':
     case 'd':
     {
-        // TODO incluir no readme
         double adouble, bdouble;
         sscanf(primeiro.vetor, "%lf", &adouble);
         sscanf(segundo.vetor, "%lf", &bdouble);
@@ -45,15 +52,30 @@ int compararValores(Texto primeiro, Texto segundo, char tipo)
     return 0;
 }
 
+/**
+ * Verifica se o segundo argumento é substring do primeiro. Retorna 1 em caso de sucesso e 0, caso contrário.
+ * 
+ * @param primeiro Estrutura de texto.
+ * @param segundo Estrutura de texto.
+ * @return 1 caso de sucesso e 0, caso contrário.
+ */
 int compararProximo(Texto primeiro, Texto segundo)
 {
-    return strstr(primeiro.vetor, segundo.vetor) != NULL;
+    return strstr(primeiro.vetor, segundo.vetor) != NULL; //A função strstr retorna um ponteiro para a primeira ocorrência da substring.
 }
 
+/**
+ * Verifica a linha satisfaz a regra informada.
+ * 
+ * @param valor Estrutura de texto contendo o valor solicitado pelo usuário.
+ * @param comparar Estrutura de texto contendo os valores a serem comparados.
+ * @param regra Opção de pesquisa escolhida pelo usuário.
+ * @param tipo Tipo de dado
+ * @return 1 em caso de sucesso e 0, caso contrário. 
+ */
 int deveExibir(Texto valor, Texto comparar, Regra regra, char tipo)
 {
-    // TODO FIX incluir no readme
-    if (strcmp("NULL", comparar.vetor) == 0)
+    if (strcmp("NULL", comparar.vetor) == 0) //caso o valor a ser comparado seja NULL
     {
         return 0;
     }
@@ -87,6 +109,14 @@ int deveExibir(Texto valor, Texto comparar, Regra regra, char tipo)
     return exibir;
 }
 
+/**
+ * Exibe na tela os resultados da pesquisa de valores.
+ * 
+ * @param tabela Estrutura contendo os dados da tabela.
+ * @param indice posição da coluna
+ * @param valor Estrutura contendo os dados do valor a ser pesquisado
+ * @param regra Estrutura referente à opção de pesquisa escolhida pelo usuário.
+ */
 void pesquisa_exibir(Tabela tabela, int indice, Texto valor, Regra regra)
 {
     tabela_exibirCabecalho(tabela);
@@ -108,6 +138,12 @@ void pesquisa_exibir(Tabela tabela, int indice, Texto valor, Regra regra)
     printf("----------------------------------------------------------------------\n");
 }
 
+/**
+ * Exibe na tela o menu com as opções de pesquisa, faz a leitura da escolha do usuário e do valor a ser comparado e exibe os resultados da pesquisa.
+ * 
+ * @param tabela Estrutura contendo os dados da tabela
+ * @param indice Posição da coluna
+ */
 void pesquisar(Tabela tabela, int indice)
 {
     printf("Qual o valor a ser comparado: ");

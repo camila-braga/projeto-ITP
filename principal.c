@@ -1,6 +1,6 @@
 /***
  * @file
- * @brief Responsável pela execução inicial do programa
+ * @brief Responsável pela execução inicial do programa.
  *
  * Gerencia o menu do programa invocando os módulos adequados para cada opção.
  */
@@ -13,6 +13,9 @@
 #include "Pesquisa.h"
 #include "TabelaGeral.h"
 
+/**
+ * Representa as opções de escolha do menu do programa.
+ */
 typedef enum
 {
   CRIAR_TABELA = 1,
@@ -23,11 +26,11 @@ typedef enum
   APAGAR_TUPLA = 6,
   APAGAR_TABELA = 7,
   SAIR = 8,
-  LIMPAR = 0
+  LIMPAR = 0 /**Apaga os arquivos do disco rígido*/
 } Opcoes;
 
 /**
- * Exibe as opções do menu
+ * Exibe na tela as opções do menu.
  */
 void menu()
 {
@@ -42,11 +45,20 @@ void menu()
   printf("%d - Apagar uma tupla (registro ou linha) de uma tabela;\n", APAGAR_TUPLA);
   printf("%d - Apagar uma tabela;\n", APAGAR_TABELA);
   printf("%d - SAIR.\n", SAIR);
-  printf("%d - Limpar os dados.\n", LIMPAR);
+  printf("%d - Excluir arquivos.\n", LIMPAR);
   printf("-------------------------------------------------------\n\n");
   printf("Digite a opcao desejada: ");
 }
 
+/**
+ * Verifica se já existe um texto registrado igual ao requerido.
+ * 
+ * Recebe um vetor de textos e verifica se existe dois textos iguais nesse vetor. Retorna 0 se não existirem valores iguais ou, caso contrário, a posição de maior valor entre os dois textos comparados, ou seja, nunca retorna zero em caso verdadeiro.
+ * 
+ * @param n quantidade de textos a serem comparadas.
+ * @param linhaASerInserida vetor com todos os textos.
+ * @return retorna 0 se não existir dois textos iguais no vetor, caso contrário, retorna valor maior que zero.
+ */
 int verificarNomesIguais(int n, Texto linhaASerInserida[])
 {
   for (int i = 0; i < n; i++)
@@ -64,10 +76,15 @@ int verificarNomesIguais(int n, Texto linhaASerInserida[])
   return 0;
 }
 
+/**
+ * Representa a opção do menu de criar uma tabela.
+ * 
+ * Realiza a leitura do nome da tabela, verificando se este é válido, da quantidade de colunas da tabela, dos nomes das colunas (incluindo a chave primária) e seus tipos, criando um arquivo contendo essas informações e outro contendo a quantidade de tabelas e seus nomes (tabela geral.data).
+ */
 void criarTabela()
 {
   printf("Digite o nome da tabela: ");
-  Texto nome = texto_lerTerminalEmLoop(256); // nomes são limitados a 256 caracteres
+  Texto nome = texto_lerTerminalEmLoop(256); //Os nomes são limitados a 256 caracteres.
   while (tabelaGeral_contemTabela(nome))
   {
     printf("\t\tNao e possivel realizar essa acao: ja existe uma tabela de nome \"%s\".\n", nome.vetor);
@@ -117,6 +134,11 @@ void criarTabela()
   }
 }
 
+/**
+ * Representa a opção do menu de exibir os dados de uma tabela.
+ * 
+ * Faz a leitura do nome da tabela, abre seu arquivo correspondente e exibe na tela seu cabeçalho com seus dados.
+ */
 void exibirDados()
 {
   printf("Digite o nome da tabela: ");
@@ -126,7 +148,7 @@ void exibirDados()
     Tabela tabela = tabela_recuperar(nome);
     tabela_exibirCabecalho(tabela);
     tabela_exibirDados(tabela);
-    tabela_liberar(tabela); // libera nome também
+    tabela_liberar(tabela); // libera a estrutura nome também
     printf("\n");
   }
   else
@@ -136,7 +158,12 @@ void exibirDados()
   }
 }
 
-Texto leituraDaChavePrimaria(ColunaDaTabela coluna)
+/**
+ * Faz a leitura da chave primária retornando uma estrutura contendo suas informações.
+ * 
+ * @return Estrutura com os dados lidos. 
+ */
+Texto leituraDaChavePrimaria()
 {
   int valor = texto_lerValorPositivoEmLoop();
   Texto texto;
@@ -148,15 +175,24 @@ Texto leituraDaChavePrimaria(ColunaDaTabela coluna)
   return texto;
 }
 
+/**
+ * Faz as leituras dos dados da linha a ser inserida, retornando uma estrutura com os dados lidos.
+ * 
+ * Observação: Insere 'NULL' caso o usuário não queira adicionar um dado.
+ * 
+ * @param n quantidade de colunas
+ * @param colunas Estrutura contendo os dados das colunas
+ * @return Uma estrutura com os dados lidos
+ */
 Texto * leituraDeDados(int n, ColunaDaTabela colunas[])
 {
   printf("\tDigite o valor da chave primaria: ");
   Texto *linhaASerInserida = calloc(n, sizeof(Texto));
-  linhaASerInserida[0] = leituraDaChavePrimaria(colunas[0]);
+  linhaASerInserida[0] = leituraDaChavePrimaria();
   for (int i = 1; i < n; i++)
   {
     ColunaDaTabela aux = colunas[i];
-    printf("\tDeseja inserir um valor para coluna %s (s, n)?: ", aux.nome.vetor);
+    printf("\tDeseja inserir um valor para coluna %s (s-sim , n-nao)?: ", aux.nome.vetor);
     char inserir;
     scanf("%c", &inserir);
     fflush(stdin);
@@ -172,17 +208,24 @@ Texto * leituraDeDados(int n, ColunaDaTabela colunas[])
       texto.tamanho = 4;
       texto.vetor = calloc(5, sizeof(char));
       sprintf(texto.vetor, "NULL");
-      linhaASerInserida[i] = texto;
+      linhaASerInserida[i] = texto; //insere NULL caso o usuário não queira inserir um dado 
     }
   }
   return linhaASerInserida;
 }
 
+/**
+ * Verifica se já existe uma chave com valor igual ao requerido, retornando 1 em caso de sucesso e 0, caso contrário.
+ * 
+ * @param tabela Estrutura com os dados da tabela.
+ * @param linhaASerInserida Estrutura com o dado a ser verificado
+ * @return 1 em caso de sucesso e 0, caso contrário
+ */
 int verificarExistenciaDaChave(Tabela tabela, Texto linhaASerInserida[])
 {
   int erro = 0;
   int posicao = coluna_buscarValor(tabela.colunas[0], linhaASerInserida[0]);
-  if (posicao != -1) // valor ausente
+  if (posicao != -1) // valor presente
   {
     erro = 1;
     printf("\t\tNao e possivel realizar essa acao: ja existe uma linha com a chave \"%s\".\n", linhaASerInserida[0].vetor);
@@ -190,6 +233,11 @@ int verificarExistenciaDaChave(Tabela tabela, Texto linhaASerInserida[])
   return erro;
 }
 
+/**
+ * Representa a opção do menu de adicionar linha em uma tabela.
+ * 
+ * Faz a leitura do nome da tabela e dos dados a serem adicionados e, em seguida, atualiza o arquivo da tabela, inserindo uma linha com os dados recentes.
+ */
 void adicionarDados()
 {
   printf("Digite o nome da tabela: ");
@@ -222,6 +270,11 @@ void adicionarDados()
   free(nome.vetor);
 }
 
+/**
+ * Representa a opção do menu de apagar uma tabela.
+ * 
+ * Faz a leitura do nome da tabela e a apaga do disco rígido, atualizando o arquivo 'tabela geral.data', que contém a quantidade de tabelas e seus nomes.
+ */
 void apagarTabela()
 {
   printf("Digite o nome da tabela a ser apagada: ");
@@ -237,6 +290,11 @@ void apagarTabela()
   free(nome.vetor);
 }
 
+/**
+ * Representa a opção do menu de apagar uma linha de uma tabela.
+ * 
+ * Faz a leitura do nome da tabela e da chave desejada e apaga sua linha, atualizando o arquivo da tabela.
+ */
 void apagarTupla()
 {
   printf("Digite o nome da tabela em que se encontra a tupla: ");
@@ -262,6 +320,11 @@ void apagarTupla()
   }
 }
 
+/**
+ * Representa a opção do menu de pesquisar um valor em uma tabela.
+ * 
+ * Faz a leitura do nome da tabela e exibe as colunas disponíveis. Depois, faz a leitura do valor a ser pesquisado, exibindo as opções de pesquisa para, posteriormente, exibir os resultados da pesquisa.
+ */
 void pesquisarValores()
 {
   printf("Digite o nome da tabela a ser pesquisada: ");
@@ -300,9 +363,9 @@ void pesquisarValores()
 }
 
 /**
- * Função principal
+ * Função principal.
  *
- * @return resultado da execução do programa. 0 indica ausência de erros.
+ * @return Resultado da execução do programa. 0 indica ausência de erros.
  */
 int main(void)
 {
